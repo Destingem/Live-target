@@ -1,0 +1,1 @@
+{"seta_adresar": "/Users/mpmp/Downloads/10mV57a", "uzivatelske_id": "ondrejzaplatilek", "heslo": "Amos3044.", "seta_path": "/Users/mpmp/Downloads/10mV57a/SETA 10 CPU.exe"}
