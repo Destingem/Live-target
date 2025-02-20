@@ -12,6 +12,7 @@ import threading
 import subprocess  # Add this import
 import uuid  # Add this import for unique IDs
 import datetime  # Add this import for timestamps
+import requests  # Add this at the top with other imports
 
 # Configure basic logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -253,13 +254,38 @@ def parsuj_tch_soubor(filepath):
         return None
 
 def nahraj_data_do_cloudu(data, uzivatelske_id, heslo, filename):
-    """Nahrává data do cloudu s race_id."""
+    """Nahrává data do cloudu."""
     if not race_session.is_running:
         return  # Don't send data if no race is running
         
-    print(f"Simulace nahrávání dat pro uživatele {uzivatelske_id}, závod {race_session.race_id}")
-    print(f"Data: {data}")
-    # TODO: Add race_id to the API request when implementing real cloud upload
+    api_url = "http://shooting.bytedev.cz/api/shots"
+    
+    # Get only the last shot (newest data)
+    if data and len(data) > 0:
+        last_shot = data[-1]  # Get the last shot from the data array
+        
+        # Prepare the payload
+        payload = {
+            "user_id": uzivatelske_id,
+            "password": heslo,
+            "race_id": race_session.race_id,
+            "shot_data": {
+                "x": last_shot['x'],
+                "y": last_shot['y'],
+                "time": last_shot['time']
+            }
+        }
+        
+        try:
+            response = requests.post(api_url, json=payload)
+            if response.status_code == 200:
+                logging.debug(f"Data úspěšně odeslána: {payload}")
+            else:
+                logging.error(f"Chyba při odesílání dat: {response.status_code} - {response.text}")
+                fault_handler.log_fault(f"API Error: {response.status_code} - {response.text}")
+        except Exception as e:
+            logging.error(f"Chyba při komunikaci s API: {str(e)}")
+            fault_handler.log_fault(f"API Communication Error: {str(e)}")
 
 def find_usb_drive_config(filename="config.txt"):
     """
