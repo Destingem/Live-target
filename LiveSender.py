@@ -258,16 +258,15 @@ def nahraj_data_do_cloudu(data, uzivatelske_id, heslo, filename):
     if not race_session.is_running:
         return  # Don't send data if no race is running
         
-    api_url = "http://shooting.bytedev.cz/api/shots"
+    api_url = "http://localhost:3000/api/shots"
     
     # Get only the last shot (newest data)
     if data and len(data) > 0:
         last_shot = data[-1]  # Get the last shot from the data array
         
-        # Prepare the payload
+        # Prepare the payload (removed password)
         payload = {
             "user_id": uzivatelske_id,
-            "password": heslo,
             "race_id": race_session.race_id,
             "shot_data": {
                 "x": last_shot['x'],
@@ -388,7 +387,7 @@ def vytvor_token():
     uzivatelske_id = id_entry.get()
     heslo = heslo_entry.get()
 
-    if not seta_adresar or not uzivatelske_id or not heslo:
+    if not seta_adresar or not uzivatelske_id or heslo:
         messagebox.showerror("Chyba", "Prosím vyplňte všechna pole nastavení.")
         return
 
